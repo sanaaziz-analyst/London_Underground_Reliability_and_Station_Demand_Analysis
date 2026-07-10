@@ -583,15 +583,3 @@ All reliability and footfall data comes from Transport for London, released unde
 ## Acknowledgements
 
 All data is sourced from Transport for London under the Open Government Licence, with supporting open data used for station coordinates and line information. All analysis, cleaning and visualisation work is my own.
-
----
-
-## Contact
-
-**Your name here**
-
-Data Analyst | SQL, Python, Power BI
-
-London, UK
-
-Add your email, LinkedIn and phone badges here, in the same style as your other project, once you are ready to publish.
