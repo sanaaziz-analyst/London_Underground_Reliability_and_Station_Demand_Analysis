@@ -31,7 +31,7 @@ The core question: did growing passenger demand outpace the network's reliabilit
 
 | Category | Tools |
 |-----------|--------|
-| Programming and cleaning | Python (Pandas), Jupyter Notebook |
+| Programming and cleaning | Python (Pandas),(Matplotlib), Jupyter Notebook |
 | Database management | MySQL |
 | Visualisation and dashboard | Power BI, including ArcGIS Maps for Power BI |
 | Data storage | CSV and Excel files |
@@ -135,9 +135,9 @@ Columns were renamed to plain, unambiguous names, station, borough, entry and ex
 
 ![Column renaming](images/footfall_cleaning_04_rename.png)
 
-**Handling inconsistent columns across years**
+**Adding year columns across years**
 
-Earlier years, 2011 to 2013, had ten columns, since they did not include borough information. Later years, 2014 onward, had eleven columns. This was handled with a column count check inside a loop that processed all seven years at once.
+For appending all years sheets in one file, year column was introduced.
 
 ![Column count handling in the loop](images/footfall_cleaning_05_column_loop.png)
 
@@ -352,10 +352,11 @@ This flags which of the thirteen operational periods, taken across all years, ca
 **Business question: Which was the best year and which was the worst, for reliability?**
 
 ```sql
-SELECT financial_year, SUM(lost_customer_hours) AS total_lch
-FROM clean_lost_customer_hours
-GROUP BY financial_year
-ORDER BY total_lch ASC;
+(SELECT financial_year, SUM(lost_customer_hours) AS total_lch, 'Best' AS label
+ FROM clean_lost_customer_hours GROUP BY financial_year ORDER BY total_lch ASC LIMIT 1)
+UNION
+(SELECT financial_year, SUM(lost_customer_hours) AS total_lch, 'Worst' AS label
+ FROM clean_lost_customer_hours GROUP BY financial_year ORDER BY total_lch DESC LIMIT 1);
 ```
 
 ![Best and worst year](images/sql_09_best_worst_year.png)
@@ -394,113 +395,155 @@ This is the query that ties the whole project together. It joins a financial yea
 
 Moved into Power BI for the visual and interactive work. All screenshots are in the `images` folder.
 
----
-
-**Indexed comparison of demand and reliability**
-
-![Indexed LCH versus footfall chart](images/powerbi_01_indexed_chart.png)
-
-Since footfall is measured in people and Lost Customer Hours is measured in hours, the two cannot sit on the same chart scale directly. Both were indexed to a common base of 100 at 2011/12, which is a standard analyst technique that allows two completely different units to be compared visually on one chart.
+Each page includes slicers along the left hand side so you can filter by Underground line. The numbered circles in the top right corner of every page act as a simple page navigation guide. If you open the .pbix file in Power BI Desktop you can click through the slicers and drill into any station or year yourself.
 
 ---
 
-**Reliability trends page**
+## Page 1: Executive Summary
 
-![Reliability trends page](images/powerbi_02_reliability_trends.png)
+![Page 1 screenshot](images/page1.png)
 
-Yearly Lost Customer Hours, a heatmap of year against operational period, and a chart of the worst periods across all years.
+This is the landing page of the report. It is designed to answer the question "what do I need to know in the first ten seconds" before anyone digs deeper.
 
----
+**Busiest Station card**
+A simple headline card showing Waterloo as the busiest station across the whole period. This sets the scene for the rest of the report, since Waterloo reappears throughout as the network's biggest pressure point.
 
-**Station demand page**
+**Best Year, YoY Change and Total Footfall cards**
+Three small cards sitting together. Best Year shows 2014/15 as the year with the strongest reliability performance. YoY Change shows a 14.39 per cent movement in the latest year, coloured red to flag that this is a negative development rather than good news. Total Footfall gives the overall scale of the numbers being discussed.
 
-![Station demand page](images/powerbi_03_station_demand.png)
+**Top 5 Boroughs table**
+A ranked table of the five boroughs with the highest total footfall. City of Westminster sits well ahead of the rest, followed by Camden, City of London, Lambeth and Kensington and Chelsea. This tells the story of where London's Underground demand is physically concentrated, largely in central London.
 
-The busiest stations, the fastest growing and declining stations, weekday versus weekend ratios, and borough level totals.
+**Station locations map**
+An Esri powered map plotting every station as a bubble, coloured by line and sized by footfall. This gives an immediate visual sense of where the busiest parts of the network sit geographically, with the largest bubbles clustered around central London.
 
----
+**Footfall along the selected line chart**
+A line chart running along the bottom left of the page, showing footfall station by station along whichever line is selected in the slicer. This chart updates dynamically, so selecting Circle line or Piccadilly line, for example, reshapes the entire chart to that line's stations in order.
 
-**Building a proper date table**
+**Growth versus decline across the network**
+A horizontal bar chart showing the three fastest growing and three fastest declining stations across the whole network, regardless of which line is selected. Cannon Street and Chesham lead the growth side, while Russell Square, Goodge Street and Walthamstow show the steepest declines. A note on the chart explains that this view only ever shows the network wide top three in each direction, so it may appear empty if a line's own stations do not make that list.
 
-Transport for London uses a non standard financial calendar, with thirteen periods of twenty eight days each, rather than normal calendar months. A calculated date table was built to support real time intelligence functions properly, rather than relying on manual year on year formulas.
+**Weekday versus weekend split donut**
+A donut chart comparing weekday and weekend footfall, drawn from the stations with the most extreme patterns in each direction. It shows a 72.08 per cent weekday share against a 27.92 per cent weekend share, underlining how commuter driven the network remains.
 
-![Date table setup](images/powerbi_04_date_table.png)
+**LCH versus footfall indexed chart**
+A dual line chart indexing both Lost Customer Hours and footfall back to 100 in 2011/12, so the two trends can be compared on the same scale regardless of their different units. The chart shows footfall (red) climbing steadily to 117 by 2016/17, while the reliability index (blue) dips in the middle years before spiking back up. This chart is effectively a preview of the report's central argument, which is explored fully on page five.
 
----
-
-**A relationship bug worth documenting**
-
-Once the date table was linked, a year on year measure returned the same, incorrect total for every single year. The cause was the relationship's cross filter direction being set to Single, which only lets filters flow one way. Changing it to Both fixed the measure completely.
-
-![Relationship direction fix](images/powerbi_05_relationship_fix.png)
-
----
-
-**Sourcing real station coordinates**
-
-Neither raw file included station coordinates, so these were sourced separately from a Transport for London Freedom of Information response, released with no copyright restrictions, and joined onto the station table by name.
-
-![Station coordinates sourcing](images/powerbi_06_coordinates.png)
+**Page outcome**: this page tells the reader that footfall is growing, that it is concentrated in central London, that reliability has recently worsened, and that Waterloo is the single most important station to watch.
 
 ---
 
-**Sourcing real station photographs**
+## Page 2: Reliability Trend
 
-A manual search for photographs across more than two hundred and fifty stations was not practical, so a small Python script, fetch_station_images.py, was built to query Wikipedia's public API directly and return a real photograph and source link for every station.
+![Page 2 screenshot](images/page2.png)
 
-![Fetching station images](images/powerbi_07_station_images.png)
+This page moves away from footfall and focuses entirely on reliability, measured in Lost Customer Hours, often shortened to LCH. Lost Customer Hours is a standard industry measure of the cumulative delay experienced by passengers across the network, so a rising figure means passengers are losing more time to disruption.
 
----
+**YoY Change and Best year cards**
+The same YoY Change figure from page one, 14.39 per cent, sits here alongside a Best year card confirming 2014/15 as the year with the lowest Lost Customer Hours, meaning it was the most reliable year in the data set.
 
-**Building the interactive station map**
+**Customer Impact by Operational Period bar chart**
+Transport for London divides its financial year into thirteen four week operational periods rather than calendar months. This chart shows total customer impact, in millions of hours, for each of the thirteen periods, added together across all years in the data set. Period four stands out clearly in red as the worst performing period overall, at 15 million hours, with periods five, nine and twelve also running high. This points towards a seasonal pattern worth investigating further, since certain periods consistently perform worse than others.
 
-Real coordinates and photographs were joined onto the station data, and a working map was built using ArcGIS Maps for Power BI, with station photographs shown directly in the tooltip.
+**Yearly Customer Impact bar chart**
+A straightforward year on year bar chart of total Lost Customer Hours. The chart tells a clear story: impact fell from 29 million hours in 2011/12 down to a low of 23 million hours in both 2012/13 and 2014/15, before climbing again to 26 million in 2015/16 and then jumping sharply to 30 million in 2016/17, which is highlighted in red as the worst year in the whole six year period.
 
-![Interactive station map](images/powerbi_08_interactive_map.png)
+**Customer Impact Heatmap**
+A matrix chart with years running down the side and the thirteen operational periods running across the top, shaded from light blue for low impact through to dark red for high impact. This lets a reader spot patterns that a simple bar chart would hide, for example the way period four shows up as consistently troublesome across several years, or the way 2016/17 has more red and dark blue cells overall than any other year.
 
----
+**Summary callout box**
+A plain English sentence at the foot of the page stating that Lost Customer Hours declined through to 2014/15 before rising sharply to a six year high by 2016/17. This kind of plain language callout is useful for anyone skimming the report quickly.
 
-**An interactive line explorer**
-
-A clickable set of coloured buttons, matching the real colours used across the London Underground network, was built using bookmarks, since conditional colour formatting was not available for every visual in this version of Power BI. Clicking a line filters the map and a footfall chart down to just that line's stations.
-
-![Line explorer buttons](images/powerbi_09_line_explorer.png)
-
----
-
-**Plotting footfall along a single line, in the correct order**
-
-A station to line sequence table was built to plot footfall along a selected line in proper geographic order, from one end of the line to the other, rather than alphabetically. This ordering is accurate for straight lines, and only an approximation for lines that branch, since branch topology is not fully captured by geography alone, and this limitation is documented clearly rather than hidden.
-
-![Footfall along the selected line](images/powerbi_10_route_chart.png)
+**Page outcome**: reliability improved steadily for three years, then reversed sharply in the final year of the data set, with certain operational periods, particularly period four, standing out as recurring weak points worth investigating.
 
 ---
 
-### Phase 4: Final Dashboard (Power BI)
+## Page 3: Station Demand
 
-**Executive summary page**
+![Page 3 screenshot](images/page3.png)
 
-![Executive summary page](images/dashboard_01_executive_summary.png)
+This page shifts the focus onto individual stations rather than the network as a whole, and covers the period from 2014 to 2017 specifically.
 
-Key metrics, a borough breakdown, a weekday versus weekend split, and a small version of the interactive station map, all on one page.
+**Busiest station, Fastest growing and Fastest declining cards**
+Three headline cards confirming Waterloo as busiest overall, Cannon Street as fastest growing at plus 132 per cent, and Walthamstow Central as fastest declining at minus 33 per cent. These numbers put real scale on the growth and decline story first introduced on page one.
+
+**Top 10 boroughs by footfall bar chart**
+A ranked bar chart repeating and expanding the borough table from page one, now showing all ten highest ranking boroughs rather than five. City of Westminster remains far ahead at 2,636, roughly double the next borough, Camden at 1,238.
+
+**Top 10 stations by footfall bar chart**
+A ranked bar chart of the busiest individual stations. Waterloo leads at 640, followed by King's Cross St Pancras at 621, Oxford Circus at 601, Victoria at 582 and London Bridge at 489, before Liverpool Street, Stratford, Bank and Monument, Canary Wharf and Paddington complete the list. This confirms that the busiest stations are almost all major interchange or terminus stations.
+
+**Growth versus decline bar chart**
+An expanded version of the chart from page one, this time showing the top ten growing and top ten declining stations rather than just the top three in each direction. On the growth side, Cannon Street's 132 per cent stands well clear of the next fastest growers, Chesham at 84 per cent and North Greenwich at 79 per cent. On the decline side, Walthamstow Central's minus 33 per cent leads a cluster of stations including Goodge Street, Russell Square and Knightsbridge all showing double digit percentage declines.
+
+**Weekday versus weekend ratio bar chart**
+This chart ranks the top stations of 2017 by how many times higher their weekday footfall is compared with weekend footfall. Moorgate tops the list with a ratio of 4.6, meaning it sees more than four and a half times as many passengers on an average weekday as on an average weekend day. Farringdon, Chancery Lane and Mansion House follow closely behind. This is a strong visual proof that London's most commuter focused stations are heavily skewed towards office worker travel patterns, in contrast with stations like Upminster Bridge and St James's Park which show much closer ratios nearer to two.
+
+**Page outcome**: the busiest stations are dominated by central interchange hubs, growth and decline are both heavily concentrated in a small number of stations rather than spread evenly, and commuter stations show dramatically different weekday and weekend patterns compared with more leisure or residential focused stations.
 
 ---
 
-**Full five page report**
+## Page 4: Station Map
 
-![Full report overview](images/dashboard_02_full_report.png)
+![Page 4 screenshot](images/page4.png)
 
-The finished report brings every phase of the project together across five pages, executive summary, reliability trends, station demand, the interactive station map, and cross analysis with recommendations.
+This page returns to the map view first seen on page one, but gives it much more room and pairs it with a station image gallery, allowing for genuine line by line exploration.
+
+**Selected Line and Top Station cards**
+Two cards confirming which line is currently selected in the slicer, in this example the Jubilee line, and which station on that line has the highest footfall, in this example Waterloo.
+
+**Station locations map**
+A larger version of the Esri map, now filtered to show only the stations on the selected line, coloured to match that line's official colour and sized according to footfall. Selecting a different line in the slicer instantly reshapes this map to that line's own route and stations.
+
+**Footfall along the selected line chart**
+A detailed line chart plotting every station on the selected line in geographic order from one end of the line to the other, with footfall values labelled directly on the chart. In the Jubilee line example shown, footfall climbs gradually from the outer stations, spikes dramatically at Waterloo with 640, dips at Southwark, spikes again at London Bridge with 489, and continues in a similar rolling pattern towards Stratford, Canning Town and the eastern end of the line. This shape, sometimes called a demand profile, is one of the more useful pieces of analysis in the whole report, since it shows planners exactly where along a line the pressure points sit.
+
+**Station image gallery**
+A scrollable table down the right hand side pairing each station name with a photograph, giving the report a more polished and tangible feel rather than being purely numbers on a page. This is a nice touch for anyone unfamiliar with the network, since it puts a real face to each station name.
+
+**Page outcome**: this page turns the report from a set of statistics into a genuine planning tool, letting anyone explore any single line in detail and see exactly where footfall rises and falls along its length.
 
 ---
 
-**Cross analysis and recommendations page**
+## Page 5: Cross Analysis and Recommendations
 
-![Cross analysis and recommendations page](images/dashboard_03_cross_analysis.png)
+![Page 5 screenshot](images/page5.png)
 
-A scatter chart comparing footfall and Lost Customer Hours by year, with the worst year clearly flagged, sitting alongside the key stats and the recommendations below.
+The final page is where the two separate stories from earlier in the report, footfall growth and reliability performance, are brought together directly, followed by clear, actionable recommendations.
 
-The report was built to answer the core business question directly, not just display the data, but make clear whether reliability kept pace with demand, and what to do about it.
+**Core finding callout box**
+A plain English statement at the top of the page setting out the headline conclusion of the whole report: footfall grew every year from 2011 to 2017, while reliability did not keep pace, ending at a six year worst in 2016/17.
+
+**Footfall versus reliability impact scatter chart**
+A scatter chart with footfall on the horizontal axis and Lost Customer Hours on the vertical axis, one dot per year. The final year, 2016/17, is highlighted in red and sits clearly apart from the rest of the group, in the top right corner of the chart, showing the highest footfall and the highest reliability impact recorded across the whole period. This single chart is the visual proof behind the report's core finding, since it shows demand and disruption rising together in the most recent year rather than moving independently.
+
+**YoY Change, LCH change and Footfall growth cards**
+Three summary cards giving the overall scale of change across the full six year period. Reliability impact rose by 6.18 per cent, while footfall grew by 15.02 per cent, a rate more than double the reliability figure. This confirms that growth in demand has consistently outpaced any improvement in reliability.
+
+**Recommendations panel**
+A written box setting out three practical recommendations arising from the analysis.
+
+1. Investigate why 2016/17 performed so much worse than previous years, since reliability had been improving steadily beforehand, meaning something specific changed that year and is worth identifying before it happens again.
+2. Focus reliability upgrades on the busiest central stations, since this is where growth is most concentrated and where any disruption affects the largest number of people.
+3. Keep a close eye on fast growing stations such as Cannon Street, since a station that is quiet today could become tomorrow's overcrowding problem if current growth trends continue unchecked.
+
+**Page outcome**: this page proves, with evidence rather than assumption, that footfall growth and reliability decline are connected, and closes the report with clear next steps that a real transport team could act on.
+
+---
+
+## Skills this project demonstrates
+
+* Data modelling and relationship building in Power BI, combining separate footfall and reliability data sets into a single coherent model
+* DAX measure writing for year on year change, indexing, ranking and growth versus decline calculations
+* Use of Esri mapping within Power BI for geospatial visualisation
+* Report design principles, including consistent page layout, a clear navigation system, and a deliberate narrative arc running from summary through to detailed findings and finally recommendations
+* Translating raw statistics into plain English findings and genuinely actionable recommendations, a skill that matters as much to employers as the technical build itself
+
+## About me
+
+I built this report as part of my own practice in data analysis and business intelligence, with a particular interest in transport and public sector data. I am currently looking for opportunities in London within data analysis, business intelligence or transport planning roles, and I would welcome the chance to talk through this project, the choices behind it, or any part of the underlying data model.
+
+Feel free to open the .pbix file yourself, explore the slicers, and reach out with any questions or feedback.
 
 ---
 
