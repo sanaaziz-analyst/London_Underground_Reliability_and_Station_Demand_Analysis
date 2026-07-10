@@ -19,10 +19,10 @@ The core question: did growing passenger demand outpace the network's reliabilit
 
 #### Data Cleaning and Analysis
 
-- The full Python cleaning work for the reliability data is in [london_underground_lost_customer_hours_preprocessing.ipynb](london_underground_lost_customer_hours_preprocessing.ipynb)
-- The full Python cleaning work for the station footfall data is in [london_underground_station_footfall.ipynb](london_underground_station_footfall.ipynb)
-- The SQL queries used to analyse reliability trends are in [lost_customer_hours_sql.sql](lost_customer_hours_sql.sql)
-- The SQL queries used to analyse station demand, and combine it with reliability, are in [clean_station_footfall_sql.sql](clean_station_footfall_sql.sql)
+- The full Python cleaning work for the reliability data is in [london_underground_lost_customer_hours_preprocessing.ipynb](Python/london_underground_lost_customer_hours_preprocessing.ipynb)
+- The full Python cleaning work for the station footfall data is in [london_underground_station_footfall.ipynb](Python/london_underground_station_footfall.ipynb)
+- The SQL queries used to analyse reliability trends are in [lost_customer_hours_sql.sql](SQL/lost_customer_hours_sql.sql)
+- The SQL queries used to analyse station demand, and combine it with reliability, are in [clean_station_footfall_sql.sql](SQL/clean_station_footfall_sql.sql)
 - The finished five page Power BI report can be found in this repository as a pbix file
 
 ---
