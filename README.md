@@ -9,7 +9,7 @@
 
 ## Report Preview
 
-![Report Demo](images/london_underground_project2026-07-1021-10-16-ezgif.com-video-to-gif-converter)
+![Report Demo](images/london_underground_project2026-07-1021-10-16-ezgif.com-video-to-gif-converter.gif)
 
 
 ---
