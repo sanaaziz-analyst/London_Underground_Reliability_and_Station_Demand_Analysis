@@ -1,5 +1,56 @@
 # London Underground Reliability and Station Demand Analysis
 
+**Industry:** Transport and Public Sector Data
+**Data period:** 2011 to 2017
+
+> **A note on the data:** every figure in this project comes from real, publicly released Transport for London open data, covering Lost Customer Hours and station footfall between 2011 and 2017. Nothing here is simulated. Station coordinates come from a genuine Transport for London Freedom of Information response, and station photographs are sourced from Wikipedia and Wikimedia Commons under Creative Commons licences.
+
+---
+
+## Report Preview
+
+![Report Demo](images/report_preview.gif)
+
+*Replace images/report_preview.gif with a short screen recording of you clicking through the slicers and pages in Power BI Desktop, exported as a gif. This single visual does more to sell the project than any amount of text, since it lets a recruiter see the interactivity in about five seconds without opening the file themselves.*
+
+---
+
+## TL;DR
+
+A five page Power BI dashboard analysing six years of real Transport for London data, covering reliability across the whole network and footfall across 268 stations, built on a cleaned and reshaped data model with Python, explored through SQL, and finished with DAX driven KPIs, an interactive station map and drill through by line.
+
+**Key findings:**
+
+* Footfall grew every single year from 2011 to 2017, up 15.02 per cent overall
+* Lost Customer Hours actually improved for several years, reaching a six year best in 2014/15, before reversing sharply to a six year worst of 30 million hours in 2016/17
+* Waterloo is the busiest station overall, Cannon Street is the fastest growing at plus 132 per cent, and Walthamstow Central is the fastest declining at minus 33 per cent
+* City of Westminster accounts for far more footfall than any other borough, at 2,636 compared with 1,238 in second placed Camden
+* Operational period four is the worst performing period for reliability across the whole six year data set, pointing towards a recurring seasonal or operational pattern rather than a one off event
+
+---
+
+## Project Files
+
+| File | Description | Link |
+|------|-------------|------|
+| Raw data | Original, uncleaned Transport for London exports | [Raw folder](Raw) |
+| Cleaned data | Reshaped, cleaned CSV files ready for SQL and Power BI | [cleaned files folder](cleaned%20files) |
+| Python cleaning, reliability | Full notebook cleaning the Lost Customer Hours data | [london_underground_lost_customer_hours_preprocessing.ipynb](Python/london_underground_lost_customer_hours_preprocessing.ipynb) |
+| Python cleaning, footfall | Full notebook cleaning the station footfall data | [london_underground_station_footfall.ipynb](Python/london_underground_station_footfall.ipynb) |
+| SQL, reliability | Queries analysing reliability trends | [lost_customer_hours_sql.sql](SQL/lost_customer_hours_sql.sql) |
+| SQL, footfall and combined | Queries analysing station demand and joining it with reliability | [clean_station_footfall_sql.sql](SQL/clean_station_footfall_sql.sql) |
+| Power BI report | Full five page .pbix file, open in Power BI Desktop to explore | [Download .pbix](London%20Underground%20Reliability%20and%20Station%20Demand%20Analysis.pbix) |
+
+---
+
+## Why I Built This Project
+
+I use the London Underground every day as a commuter, so the gap between how busy a station feels and how reliable the service actually is, is something I notice firsthand rather than something I read about. That everyday experience is what pushed me towards this particular dataset rather than a generic one found online. I wanted to find out, using real Transport for London figures rather than a personal impression, whether reliability had genuinely kept pace with the growth in passengers I see on the platform every morning, or whether that feeling of things getting busier and less predictable was actually backed up by the numbers.
+
+The goal was to give a transport operator or planning team a clear, honest picture of where demand and reliability are moving in opposite directions, and to back every finding with a proper pipeline, from raw government data through Python cleaning, SQL analysis and finally an interactive Power BI report, rather than a single chart with a claim attached to it.
+
+---
+
 ## Project Overview
 
 A data analysis project looking at whether London Underground's reliability kept pace with growing passenger demand between 2011 and 2017. Built for a portfolio piece using real Transport for London open data, working through the full pipeline, raw data, cleaning, SQL analysis, Power BI visuals, and a five page interactive dashboard.
@@ -583,7 +634,6 @@ All reliability and footfall data comes from Transport for London, released unde
 ## Acknowledgements
 
 All data is sourced from Transport for London under the Open Government Licence, with supporting open data used for station coordinates and line information. All analysis, cleaning and visualisation work is my own.
-
 ---
 
 ## Contact
