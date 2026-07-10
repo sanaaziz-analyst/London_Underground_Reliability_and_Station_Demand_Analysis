@@ -14,8 +14,8 @@ The core question: did growing passenger demand outpace the network's reliabilit
 
 #### Datasets
 
-- Raw datasets can be found in the `data` folder
-- Cleaned datasets, clean_lost_customer_hours.csv and clean_station_footfall.csv, can also be found in the `data` folder
+- Raw datasets can be found in the `Raw` folder
+- Cleaned datasets, clean_lost_customer_hours.csv and clean_station_footfall.csv, can also be found in the `cleaned files` folder
 
 #### Data Cleaning and Analysis
 
@@ -23,7 +23,6 @@ The core question: did growing passenger demand outpace the network's reliabilit
 - The full Python cleaning work for the station footfall data is in [london_underground_station_footfall.ipynb](london_underground_station_footfall.ipynb)
 - The SQL queries used to analyse reliability trends are in [lost_customer_hours_sql.sql](lost_customer_hours_sql.sql)
 - The SQL queries used to analyse station demand, and combine it with reliability, are in [clean_station_footfall_sql.sql](clean_station_footfall_sql.sql)
-- The script used to source real station photographs for the interactive map is in [scripts/fetch_station_images.py](scripts/fetch_station_images.py)
 - The finished five page Power BI report can be found in this repository as a pbix file
 
 ---
