@@ -11,7 +11,6 @@
 
 ![Report Demo](images/report_preview.gif)
 
-*Replace images/report_preview.gif with a short screen recording of you clicking through the slicers and pages in Power BI Desktop, exported as a gif. This single visual does more to sell the project than any amount of text, since it lets a recruiter see the interactivity in about five seconds without opening the file themselves.*
 
 ---
 
