@@ -583,3 +583,16 @@ All reliability and footfall data comes from Transport for London, released unde
 ## Acknowledgements
 
 All data is sourced from Transport for London under the Open Government Licence, with supporting open data used for station coordinates and line information. All analysis, cleaning and visualisation work is my own.
+
+---
+
+## Contact
+
+**Sana Aziz**
+
+Data Analyst | SQL • Excel • Power BI • Tableau • Python
+
+London, UK
+
+[![Gmail](https://img.shields.io/badge/Gmail-sana.aziz.leo%40gmail.com-D14836?style=flat&logo=gmail&logoColor=white)](mailto:sana.aziz.leo@gmail.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-sana--aziz--analyst--uk-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sana-aziz-analyst-uk/)
